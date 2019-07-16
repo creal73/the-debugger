@@ -1,0 +1,27 @@
+{
+  "name": "the-debugger",
+  "version": "1.0.0",
+  "description": "The Debugger is a mini-game where the user catches bugs and destroys them !",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "parcel index.html",
+    "build": "rm -R dist && parcel build index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/creal73/the-debugger.git"
+  },
+  "author": "Alexandre Koelsch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/creal73/the-debugger/issues"
+  },
+  "homepage": "https://github.com/creal73/the-debugger#readme",
+  "devDependencies": {
+    "autoprefixer": "^9.6.1",
+    "parcel-bundler": "^1.12.3",
+    "postcss-modules": "^1.4.1"
+  }
+}
