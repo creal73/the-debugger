@@ -5,3 +5,14 @@ html {
 *,*::before, *:after {
     box-sizing: inherit;
 }
+
+.game {
+    position: relative;
+    border: solid 1px black;
+    min-height: 100vh;
+}
+
+.bug {
+    position: absolute;
+    /* pointer-events: none; */
+}
