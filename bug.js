@@ -14,6 +14,9 @@ export class Bug {
         this.element = this.createElement();
     }
 
+    /**
+     * Creates an HTMLElement corresponding to the bug model
+     */
     createElement() {
         let element = document.createElement('div');
 
@@ -30,6 +33,10 @@ export class Bug {
         return element;
     }
 
+    /**
+     * Sets the size of the bug
+     * @param {height: number; width: number} param0 
+     */
     setSize({ height, width }) {
         this.size.height = height;
         this.size.width = width;
