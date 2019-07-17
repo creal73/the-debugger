@@ -5,6 +5,8 @@ export class Game {
     constructor() {
         this.stopDrawing();
         this.newBug;
+        this.bugRemovingCounter = 0;
+        this.bugsToDelete = [];
     }
 
     /**
@@ -76,7 +78,7 @@ export class Game {
         console.debug("Game::onBugCreationFinished()");
 
         // Do not add a new bug if its size is not defined
-        if (this.newBug.size && (!this.newBug.size.height || !this.newBug.size.width)) {
+        if (this.newBug && this.newBug.size && (!this.newBug.size.height || !this.newBug.size.width)) {
             this.canvas.removeChild(this.newBug.element);
         }
 
@@ -188,8 +190,26 @@ export class Game {
      */
     removeBug(bugElement) {
         bugElement.classList.add('removing');
+
+        // Increment a counter each time a remove animation is started
+        bugElement.addEventListener('animationstart', () => {
+            this.bugRemovingCounter++;
+            console.debug(`Number of bugs currently removing is ${this.bugRemovingCounter}`);
+        });
+
+        // Decrement the counter each time a remove animation is ended
         bugElement.addEventListener('animationend', () => {
-            bugElement.remove();
+            this.bugRemovingCounter--;
+            console.debug(`Number of bugs currently removing is ${this.bugRemovingCounter}`);
+        });
+
+        // Keep in memory the elements to remove
+        this.bugsToDelete.push(bugElement);
+
+        // Removes all the double clicked bugs when all animations are done
+        this.canvas.addEventListener('animationend', () => {
+            if (this.bugsToDelete && this.bugRemovingCounter === 0)
+                this.bugsToDelete.forEach(bug => bug.remove());
         });
     }
 }
