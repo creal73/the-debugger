@@ -14,5 +14,8 @@ html {
 
 .bug {
     position: absolute;
-    /* pointer-events: none; */
+}
+
+.no-event {
+    pointer-events: none;
 }
