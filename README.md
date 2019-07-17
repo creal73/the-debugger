@@ -18,8 +18,8 @@
 
 ## Ideas of improvements
 
-- ~~Think about mouse size when drawing a bug~~
-- ~~Extract 'Bug' in its own class~~
-- Add tests
-- Use Web Components
+- [X] Think about mouse size when drawing a bug
+- [X] Extract 'Bug' in its own class
+- [X] Add tests
+- [ ] Use Web Components ?
 - ...
