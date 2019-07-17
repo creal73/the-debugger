@@ -13,9 +13,25 @@ html {
 }
 
 .bug {
-    position: absolute;
+    position: absolute;    
+}
+
+.removing {
+    animation-duration: 2s;
+    animation-name: rotate;
+    animation-iteration-count: 1;
 }
 
 .no-event {
     pointer-events: none;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg); 
+  }
+
+  to {
+      transform: rotate(360deg);
+  }
 }

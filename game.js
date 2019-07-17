@@ -7,24 +7,30 @@ export class Game {
         this.newBug;
     }
 
+    /**
+     * Gets the drawing zone element
+     */
     get canvas() {
         return document.querySelector('[data-game]');
     }
 
+    /**
+     * Gets all bug elements
+     */
     get bugElements() {
         return this.canvas.querySelectorAll('.bug');
     }
 
     /**
-     * Launch the game
+     * Launches the game
      */
     run() {
         console.debug("Game::run()");
 
         this.canvas.onmousedown = event => this.initializeNewBug(event);
-        this.canvas.onmouseup = () => this.onMouseUp();
-        this.canvas.onmousemove = event => this.onMouseMove(event);
-        this.canvas.onmouseleave = () => this.onMouseLeave();
+        this.canvas.onmouseup = () => this.onBugCreationFinished();
+        this.canvas.onmousemove = event => this.setBugSize(event);
+        this.canvas.onmouseleave = () => this.stopBugCreation();
     }
 
     /**
@@ -38,10 +44,12 @@ export class Game {
 
     /**
      * Callback for mousedown event
+     * 
+     * Initializes a new bug
      */
     initializeNewBug(event) {
 
-        console.debug("Game::onMouseDown()");
+        console.debug("Game::initializeNewBug()");
 
         if (this.isCreatingBug) {
             this.stopDrawing();
@@ -53,7 +61,6 @@ export class Game {
         // Remove pointer events on 'bugs' to prevent drawing fail
         document.querySelectorAll('.bug').forEach(element => element.classList.add('no-event'));
 
-        console.debug(`Starting position is { x: ${event.clientX}, y: ${event.clientY} }`);
         this.startingPosition = { x: event.clientX, y: event.clientY };
 
         this.newBug = this.createBugElement({ top: this.startingPosition.y, left: this.startingPosition.x });
@@ -62,18 +69,21 @@ export class Game {
 
     /**
      * Callback for mouseup event
+     * 
+     * Ends up the bug creation
      */
-    onMouseUp() {
-        console.debug("Game::onMouseUp()");
+    onBugCreationFinished() {
+        console.debug("Game::onBugCreationFinished()");
+
+        // Do not add a new bug if its size is not defined
+        if (this.newBug.size && (!this.newBug.size.height || !this.newBug.size.width)) {
+            this.canvas.removeChild(this.newBug.element);
+        }
+
         this.stopDrawing();
 
         // Set back pointer events on 'bugs'
         document.querySelectorAll('.bug').forEach(element => element.classList.remove('no-event'));
-
-        if (!this.isCreatingBug && this.newBug) {
-            console.debug('onMouseUp::Remove bug !')
-            this.newBug.element.remove();
-        }
 
         this.subscribeToBugsEvents();
     }
@@ -81,17 +91,13 @@ export class Game {
     /**
      * Callback for mousemove event
      * 
+     * Sets the currently creating bug size
+     * 
      * Will execute only if we are creating a new 'bug'
      */
-    onMouseMove(event) {
+    setBugSize(event) {
 
         if (!this.isCreatingBug) {
-
-            if (this.newBug) {
-                console.debug('onMouseMove::Remove bug !')
-                this.newBug.element.remove();
-            }
-
             this.stopDrawing();
             return;
         }
@@ -102,14 +108,17 @@ export class Game {
         this.newBug.setSize({ height: coordinates.height, width: coordinates.width });
     }
 
-    onMouseLeave() {
+    /**
+     * Removes the bug element which is currently creating
+     */
+    stopBugCreation() {
 
         if (!this.isCreatingBug) {
             this.stopDrawing();
             return;
         }
 
-        console.debug('Mouse is outside the drawing zone !');
+        console.debug('stopBugCreation()::Mouse is outside the drawing zone !');
 
         this.isCreatingBug = false;
         this.canvas.removeChild(this.newBug.element);
@@ -129,17 +138,18 @@ export class Game {
             let top = startingPosition.y;
             let left = startingPosition.x;
 
-            let coord = {
+            return {
                 height: height,
                 width: width,
                 top: top,
                 left: left,
-            }
-
-            return coord;
+            };
         }
     }
 
+    /**
+     * Resets properties used for creation process
+     */
     stopDrawing() {
         this.isCreatingBug = false;
         this.startingPosition = { x: NaN, y: NaN };
@@ -147,29 +157,39 @@ export class Game {
         this.newBug = null;
     }
 
+    /**
+     * Subscribes to bugs mouse events
+     */
     subscribeToBugsEvents() {
         this.bugElements.forEach(element => {
-            element.onmouseover = () => console.log('Mouse over bug !');
-            element.onmousedown = event => {
-                event.stopPropagation();
-            };
-            element.onmouseup = event => {
-                event.stopPropagation();
-            };
+            // Catch and stop 'mouseDown' and 'mouseup' events propagation to prevent 'bug creation' mode to trigger
+            element.onmousedown = event => event.stopPropagation();
+            element.onmouseup = event => event.stopPropagation();
 
-            element.ondblclick = event => {
-                event.target.remove();
-                console.log('double click')
-            };
+            // On Double click, we remove the current node after the end of the animation
+            element.ondblclick = event => this.removeBug(event.target);
         });
     }
 
+    /**
+     * Unsubscribes to bugs events
+     */
     unsubscribeToBugsEvents() {
         this.bugElements.forEach(element => {
-            element.onmouseover = null;
             element.onmousedown = null;
             element.onmouseup = null;
             element.ondblclick = null;
+        });
+    }
+
+    /**
+     * Removes the given bug
+     * @param {HTMLElement} bugElement 
+     */
+    removeBug(bugElement) {
+        bugElement.classList.add('removing');
+        bugElement.addEventListener('animationend', () => {
+            bugElement.remove();
         });
     }
 }
