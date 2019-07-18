@@ -3,16 +3,17 @@ import { Bug } from './bug';
 export class Game {
 
     constructor() {
-        this.stopDrawing();
         this.newBug;
         this.bugRemovingCounter = 0;
         this.bugsToDelete = [];
+
+        this.stopDrawing(); // Ensure initial state
     }
 
     /**
      * Gets the drawing zone element
      */
-    get canvas() {
+    get gameElement() {
         return document.querySelector('[data-game]');
     }
 
@@ -20,7 +21,7 @@ export class Game {
      * Gets all bug elements
      */
     get bugElements() {
-        return this.canvas.querySelectorAll('.bug');
+        return this.gameElement.querySelectorAll('.bug');
     }
 
     /**
@@ -29,19 +30,19 @@ export class Game {
     run() {
         console.debug("Game::run()");
 
-        this.canvas.onmousedown = event => this.initializeNewBug(event);
-        this.canvas.onmouseup = () => this.onBugCreationFinished();
-        this.canvas.onmousemove = event => this.setBugSize(event);
-        this.canvas.onmouseleave = () => this.stopBugCreation();
+        this.gameElement.onmousedown = event => this.initializeNewBug(event);
+        this.gameElement.onmouseup = () => this.onBugCreationFinished();
+        this.gameElement.onmousemove = event => this.setBugSize(event);
+        this.gameElement.onmouseleave = () => this.stopBugCreation();
     }
 
     /**
-     * Creates an element representing a 'bug'.
+     * Creates a bug with the given position
      * 
-     * @returns {HTMLDivElement} The 'div' representing the newly created bug.
+     * @returns {Bug} The newly created bug.
      */
-    createBugElement({ top, left }) {
-        return new Bug({ top: top, left: left }, { height: NaN, width: NaN });
+    createBug({ top, left }) {
+        return new Bug({ top: top | NaN, left: left | NaN }, { height: NaN, width: NaN });
     }
 
     /**
@@ -50,7 +51,6 @@ export class Game {
      * Initializes a new bug
      */
     initializeNewBug(event) {
-
         console.debug("Game::initializeNewBug()");
 
         if (this.isCreatingBug) {
@@ -65,8 +65,8 @@ export class Game {
 
         this.startingPosition = { x: event.clientX, y: event.clientY };
 
-        this.newBug = this.createBugElement({ top: this.startingPosition.y, left: this.startingPosition.x });
-        this.canvas.appendChild(this.newBug.element);
+        this.newBug = this.createBug({ top: this.startingPosition.y, left: this.startingPosition.x });
+        this.gameElement.appendChild(this.newBug.element);
     }
 
     /**
@@ -79,7 +79,7 @@ export class Game {
 
         // Do not add a new bug if its size is not defined
         if (this.newBug && this.newBug.size && (!this.newBug.size.height || !this.newBug.size.width)) {
-            this.canvas.removeChild(this.newBug.element);
+            this.gameElement.removeChild(this.newBug.element);
         }
 
         this.stopDrawing();
@@ -123,7 +123,7 @@ export class Game {
         console.debug('stopBugCreation()::Mouse is outside the drawing zone !');
 
         this.isCreatingBug = false;
-        this.canvas.removeChild(this.newBug.element);
+        this.gameElement.removeChild(this.newBug.element);
 
         this.subscribeToBugsEvents();
     }
@@ -185,10 +185,12 @@ export class Game {
     }
 
     /**
-     * Removes the given bug
+     * Removes the given bug element
      * @param {HTMLElement} bugElement 
      */
     removeBug(bugElement) {
+
+        // Add css class to start the animation
         bugElement.classList.add('removing');
 
         // Increment a counter each time a remove animation is started
@@ -207,7 +209,7 @@ export class Game {
         this.bugsToDelete.push(bugElement);
 
         // Removes all the double clicked bugs when all animations are done
-        this.canvas.addEventListener('animationend', () => {
+        this.gameElement.addEventListener('animationend', () => {
             if (this.bugsToDelete && this.bugRemovingCounter === 0)
                 this.bugsToDelete.forEach(bug => bug.remove());
         });
