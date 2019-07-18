@@ -22,4 +22,5 @@
 - [X] Extract 'Bug' in its own class
 - [X] Add tests
 - [ ] Use Web Components ?
+- [ ] Migrate to TypeScript
 - ...
