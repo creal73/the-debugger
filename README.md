@@ -24,4 +24,5 @@
 - [X] Add tests
 - [ ] Use Web Components ?
 - [ ] Migrate to TypeScript
+- [ ] Add limitations or known bugs
 - ...
