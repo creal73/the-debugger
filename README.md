@@ -5,6 +5,7 @@
 
 ## How To
 
+- `npm init` to install dependencies
 - `npm start` to run the application on a local development server
 - `npm run build` to build production package
 - `npm run serve:dist` and `npm test` to execute integration test
